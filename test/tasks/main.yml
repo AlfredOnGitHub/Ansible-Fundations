@@ -1,0 +1,63 @@
+---
+- import_role:
+    name: test
+    tasks_from: security
+
+- name: Create group ansible
+  group:
+    name: ansible
+    state: present
+    gid: 10250
+
+- name: Create user ansible
+  user:
+    name: ansible 
+    groups: ansible,wheel
+    append: yes
+
+- name: Update system
+  dnf:
+    name: "*"
+    state: latest
+  register: result
+
+- name: Restart system
+  reboot:
+  when: result is failed 
+
+- name: Wait untill the restart ends
+  wait_for:
+    host: XXXXXXXXX 
+    state: started
+  when: result is failed
+
+- name: Gather the rpm package facts
+  package_facts:
+    manager: auto
+
+- name: Check whether a package called httpd is installed
+  debug:
+    msg: "{{ ansible_facts.packages['httpd'] | length }} versions of httpd are installed!"
+  when: "'httpd' in ansible_facts.packages"
+
+- name: Install if httpd is not installed
+  dnf:
+    name: httpd
+    state: latest
+  when: "'httpd' not in ansible_facts.packages"
+
+- name: Install if python is not installed
+  dnf:
+    name: python
+    state: latest
+  when: "'python3' not in ansible_facts.packages"
+
+- name: Put Index
+  copy:
+    src: ./index.html
+    dest: /var/www/html/index.html
+
+- name: Run httpd
+  service:
+    name: httpd
+    state: started

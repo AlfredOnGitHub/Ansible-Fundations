@@ -1,0 +1,19 @@
+---
+- name: Reload firewalld
+  service:
+    name: firewalld
+    state: reloaded
+
+- name: Restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+- name: Restart httpd
+  service:
+    name: httpd
+    state: restarted
+
+- name: Check
+  uri:
+    url: http://XXXXXXXXXXXXX/

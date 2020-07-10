@@ -1,0 +1,47 @@
+---
+- name: Install firewalld
+  dnf:
+    name: firewalld
+    state: present 
+
+- name: Start firewalld
+  service:
+    name: firewalld
+    state: started
+
+- name: Open ports
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - 80/tcp
+    - 443/tcp
+      #    - XXXX/tcp  
+  notify:
+  - Reload firewalld
+
+    #- name: Setting sshd port
+    #  lineinfile:
+    #    dest: "/etc/ssh/sshd_config"
+    #    regexp: "^Port"
+    #    line: "Port XXXX"
+
+    #- name: Setting Selinux type
+    #  seport:
+    #    ports: XXXX
+    #    proto: tcp
+    #    setype: ssh_port_t
+    #    state: present
+    #  notify:
+    #  - Restart sshd
+
+- name: Enforcing Selinux
+  selinux:
+    policy: targeted
+    state: enforcing
+
+- name: Allowing access type
+  sefcontext:
+    target: "/var/www/html/*"
+    setype: httpd_sys_rw_content_t

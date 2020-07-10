@@ -1,0 +1,15 @@
+---
+- name: fundations
+  hosts: XXXXXXXXXXX
+  roles:
+    - test
+  remote_user: XXXXXXXX
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  become: true
+  tasks:
+
+    - name: check
+      uri:
+        url: http://XXXXXXXXXXXXX/
+
